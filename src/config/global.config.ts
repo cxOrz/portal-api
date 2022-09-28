@@ -4,6 +4,11 @@ export const mailConfig = {
   ssl: true,
   user: '',
   pass: '',
-}
+};
 
 export const JWTSecret = '';
+
+export const dbConfig = {
+  user: '',
+  password: ''
+};
