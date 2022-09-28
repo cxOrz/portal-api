@@ -6,11 +6,14 @@ import { inno_db } from "../database";
 export function JWTAuth(level = 0) {
   return async function (ctx: any, next: any) {
     try {
-      const token = ctx.header.authorization;
+      const token = ctx.request.header.authorization;
       if (token) {
-        const uid = (jwt.verify(token, JWTSecret) as any).uid;
+        const payload: any = jwt.verify(token, JWTSecret);
+        ctx.custom = {
+          uid: payload.uid
+        };
         const user = await inno_db.collection('users').findOne({
-          uid: uid
+          uid: ctx.custom.uid
         }, {
           projection: {
             role: 1
@@ -23,6 +26,7 @@ export function JWTAuth(level = 0) {
         ctx.body = { code: 401, data: '无权操作' };
       }
     } catch (err: any) {
+      console.log(err)
       switch (err.name) {
         case 'TokenExpiredError': ctx.body = { code: 401, data: '身份过期，请重新登录' }; break;
         case 'JsonWebTokenError': ctx.body = { code: 401, data: '你的行为已被记录' };

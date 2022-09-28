@@ -9,10 +9,10 @@ import { sendEmail } from '../../utils/mail';
 const userRouter = new Router({ prefix: '/user' });
 
 // 需要权限认证，才可调用
-userRouter.get('/:uid', JWTAuth(2), async ctx => {
+userRouter.get('/', JWTAuth(2), async ctx => {
   try {
     const user = await inno_db.collection('users').findOne({
-      uid: ctx.params.uid
+      uid: ctx.custom.uid
     });
     const { password, ...result } = user as any;
     ctx.body = result;
@@ -78,7 +78,7 @@ userRouter.post('/create', async ctx => {
       return;
     }
     // 创建用户
-    const result = await inno_db.collection('users').insertOne({
+    await inno_db.collection('users').insertOne({
       uid: uuid,
       openid: '0',
       phone: '',
@@ -92,14 +92,14 @@ userRouter.post('/create', async ctx => {
     inno_db.collection('verificationCode').deleteOne({
       _id: vcode_exists?._id
     });
-    ctx.body = result;
+    ctx.body = { code: 201, data: 'success' };
   } catch (e) {
     console.error(e);
   }
 })
 
 userRouter.post('/update', JWTAuth(2), async ctx => {
-  const { uid, phone, nickName, avatarUrl, password } = ctx.request.body as any;
+  const { phone, nickName, avatarUrl, password } = ctx.request.body as any;
   const placeHolder: any = {};
   if (phone) {
     placeHolder['phone'] = phone;
@@ -116,10 +116,10 @@ userRouter.post('/update', JWTAuth(2), async ctx => {
   // 选择性更新传来的字段
   try {
     const result = await inno_db.collection('users').updateOne({
-      uid: uid
+      uid: ctx.custom.uid
     }, {
       $set: placeHolder
-    })
+    });
     ctx.body = result;
   } catch (e) {
     console.error(e);
