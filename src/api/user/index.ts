@@ -9,7 +9,7 @@ import { sendEmail } from '../../utils/mail';
 const userRouter = new Router({ prefix: '/user' });
 
 // 需要权限认证，才可调用
-userRouter.get('/:uid', JWTAuth, async ctx => {
+userRouter.get('/:uid', JWTAuth(2), async ctx => {
   try {
     const user = await inno_db.collection('users').findOne({
       uid: ctx.params.uid
@@ -98,7 +98,7 @@ userRouter.post('/create', async ctx => {
   }
 })
 
-userRouter.post('/update', JWTAuth, async ctx => {
+userRouter.post('/update', JWTAuth(2), async ctx => {
   const { uid, phone, nickName, avatarUrl, password } = ctx.request.body as any;
   const placeHolder: any = {};
   if (phone) {
