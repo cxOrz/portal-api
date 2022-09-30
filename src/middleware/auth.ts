@@ -19,6 +19,7 @@ export function JWTAuth(level = 0) {
             role: 1
           }
         });
+        ctx.custom.role = user?.role;
         // 若用户身份符合等级限制，则进入下个中间件
         if (user?.role <= level) await next();
         else ctx.body = { code: 401, data: '权限等级不够' };
