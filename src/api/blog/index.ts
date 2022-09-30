@@ -65,11 +65,7 @@ blogRouter.get('/list', async ctx => {
       limit: Number(limit),
       projection: { _id: 1, title: 1 }
     });
-
-    if (await cursor.hasNext()) {
-      ctx.body = { code: 200, data: await cursor.toArray() };
-    }
-    else ctx.body = { code: 404, data: '无数据' };
+    ctx.body = { code: 200, data: await cursor.toArray() };
   } catch (e) {
     console.error(e);
     ctx.body = { code: 500, data: '服务器内部错误' };
@@ -98,11 +94,7 @@ blogRouter.get('/', async ctx => {
       limit: Number(ctx.request.query.size),
       skip: Number(ctx.request.query.skip)
     });
-
-    if (await cursor.hasNext()) {
-      ctx.body = { code: 200, data: await cursor.toArray() };
-    }
-    else ctx.body = { code: 404, data: '无数据' };
+    ctx.body = { code: 200, data: await cursor.toArray() };
   } catch (e) {
     console.error(e);
     ctx.body = { code: 500, data: '服务器内部错误' };
