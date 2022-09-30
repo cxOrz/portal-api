@@ -1,7 +1,6 @@
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import apiRouter from './api/api.routes';
-import { test } from "./database";
 
 const app = new Koa();
 
