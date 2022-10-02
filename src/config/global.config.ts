@@ -14,3 +14,4 @@ export const dbConfig = {
 };
 
 export const nginxPath = '/var/www/html';
+export const serverUrl = 'http://127.0.0.1';
