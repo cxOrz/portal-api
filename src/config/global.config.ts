@@ -12,3 +12,5 @@ export const dbConfig = {
   user: '',
   password: ''
 };
+
+export const nginxPath = '/var/www/html';

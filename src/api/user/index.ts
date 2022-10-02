@@ -130,13 +130,15 @@ userRouter.post('/login', async ctx => {
   try {
     const user = await inno_db.collection('users').findOne({
       email: ctx.request.body?.email
-    }, { projection: { uid: 1, password: 1 } });
+    }, { projection: { _id: 0 } });
     if (user?.password !== undefined && (user.password === ctx.request.body?.password)) {
       // token 有效期7天=604800秒
       const token = jwt.sign({
         uid: user.uid
       }, JWTSecret, { expiresIn: '7d' });
-      ctx.body = { code: 201, token: token };
+      const { password, ...data } = user;
+      data.token = token;
+      ctx.body = { code: 200, data: data };
       return;
     }
     ctx.body = { code: 400, data: '登录失败' };

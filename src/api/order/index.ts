@@ -22,7 +22,7 @@ orderRouter.post('/create', JWTAuth(2), async ctx => {
         }
       ],
       open_date: date,
-      status: "未受理",
+      status: "尚未受理",
       title: ctx.request.body?.title,
       to_uid: to_uid
     });
@@ -63,7 +63,7 @@ orderRouter.get('/', JWTAuth(2), async ctx => {
 orderRouter.post('/sendmsg', JWTAuth(2), async ctx => {
   try {
     const result = await inno_db.collection('orders').updateOne({
-      _id: new ObjectId(ctx.request.body.id)
+      _id: new ObjectId(ctx.request.body?.id)
     }, {
       $push: {
         message: {

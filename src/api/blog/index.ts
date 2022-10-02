@@ -91,8 +91,8 @@ blogRouter.get('/:id', async ctx => {
 blogRouter.get('/', async ctx => {
   try {
     const cursor = inno_db.collection('blogs').find({}, {
-      limit: Number(ctx.request.query.size),
-      skip: Number(ctx.request.query.skip)
+      limit: Number(ctx.request.query.size) | 0,
+      skip: Number(ctx.request.query.skip) | 0
     });
     ctx.body = { code: 200, data: await cursor.toArray() };
   } catch (e) {
