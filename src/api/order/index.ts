@@ -71,7 +71,9 @@ orderRouter.post('/sendmsg', JWTAuth(2), async ctx => {
           direction: ctx.custom.role < 2 ? 1 : 0
         }
       },
-      last_time: new Date()
+      $set: {
+        last_time: new Date()
+      }
     });
     if (result.matchedCount === 1) {
       ctx.body = { code: 201, data: 'success' };
