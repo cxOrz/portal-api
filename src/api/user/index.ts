@@ -1,7 +1,11 @@
 import Router from '@koa/router';
+import busboy from 'busboy';
 import crypto from 'crypto';
+import fs from 'fs';
 import jwt from 'jsonwebtoken';
-import { JWTSecret } from '../../config/global.config';
+import { ObjectId } from 'mongodb';
+import path from 'path';
+import { JWTSecret, nginxPath, serverUrl } from '../../config/global.config';
 import { inno_db } from '../../database';
 import { JWTAuth } from '../../middleware/auth';
 import { sendEmail } from '../../utils/mail';
@@ -120,9 +124,52 @@ userRouter.post('/update', JWTAuth(2), async ctx => {
     }, {
       $set: placeHolder
     });
-    ctx.body = result;
+    ctx.body = { code: 201, data: 'success' };
   } catch (e) {
     console.error(e);
+    ctx.body = { code: 500, data: '服务器内部错误' };
+  }
+});
+
+userRouter.post('/upload', JWTAuth(2), async ctx => {
+  const bb = busboy({ headers: ctx.req.headers });
+  const fields = new Map<string, string>();
+  const fileData: any[] = [];
+  let fileName = crypto.randomBytes(24).toString('hex');
+  try {
+    // 解析 multipart/form-data 内容
+    await new Promise<void>((resolve) => {
+      bb.on('field', (name, val, info) => {
+        fields.set(name, val);
+      });
+      bb.on('file', (name, file, info) => {
+        fileName = `${fileName}.${info.filename.split('.').at(-1)}`;
+        file.on('data', (chunk) => {
+          fileData.push(chunk);
+        });
+      });
+      bb.on('close', () => {
+        resolve();
+      });
+      ctx.req.pipe(bb);
+    });
+    // 0说明上传的文件是头像，放到 avatar 文件夹
+    if (fields.get('type') === '0') {
+      const filepath = path.join(nginxPath, './avatar/', fileName);
+      fs.mkdirSync(path.dirname(filepath), { recursive: true });
+      fs.writeFile(filepath, Buffer.concat(fileData), () => { });
+      ctx.body = { code: 201, data: `${serverUrl}/avatar/${fileName}` };
+      inno_db.collection('users').updateOne({
+        _id: new ObjectId(ctx.custom.id)
+      }, {
+        $set: { avatarUrl: fileName }
+      });
+    } else {
+      ctx.body = { code: 500, data: '请指定上传类型' };
+    }
+  } catch (e) {
+    console.error(e);
+    ctx.body = { code: 500, data: '服务器内部错误' };
   }
 });
 
