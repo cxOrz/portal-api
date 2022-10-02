@@ -3,7 +3,6 @@ import busboy from 'busboy';
 import crypto from 'crypto';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
-import { ObjectId } from 'mongodb';
 import path from 'path';
 import { JWTSecret, nginxPath, serverUrl } from '../../config/global.config';
 import { inno_db } from '../../database';
@@ -159,8 +158,8 @@ userRouter.post('/upload', JWTAuth(2), async ctx => {
       fs.mkdirSync(path.dirname(filepath), { recursive: true });
       fs.writeFile(filepath, Buffer.concat(fileData), () => { });
       ctx.body = { code: 201, data: `${serverUrl}/avatar/${fileName}` };
-      inno_db.collection('users').updateOne({
-        _id: new ObjectId(ctx.custom.id)
+      await inno_db.collection('users').updateOne({
+        uid: ctx.custom.uid
       }, {
         $set: { avatarUrl: fileName }
       });
