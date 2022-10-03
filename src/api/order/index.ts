@@ -72,6 +72,7 @@ orderRouter.post('/sendmsg', JWTAuth(2), async ctx => {
         }
       },
       $set: {
+        status: '受理中',
         last_time: new Date()
       }
     });
@@ -89,7 +90,9 @@ orderRouter.post('/update', JWTAuth(1), async ctx => {
     const result = await inno_db.collection('orders').updateOne({
       _id: new ObjectId(ctx.request.body.id)
     }, {
-      status: ctx.request.body?.status
+      $set: {
+        status: ctx.request.body?.status
+      }
     });
     if (result.matchedCount === 1) {
       ctx.body = { code: 201, data: 'success' };

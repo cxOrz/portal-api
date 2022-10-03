@@ -18,6 +18,7 @@ userRouter.get('/', JWTAuth(2), async ctx => {
       uid: ctx.custom.uid
     });
     const { password, ...result } = user as any;
+    result.avatarUrl = serverUrl + '/avatar/' + result.avatarUrl;
     ctx.body = result;
   } catch (e) {
     console.error(e);
@@ -86,7 +87,7 @@ userRouter.post('/create', async ctx => {
       openid: '0',
       phone: '',
       nickName: '萌新',
-      avatarUrl: '',
+      avatarUrl: 'undefined.png',
       email: ctx.request.body?.email,
       role: 2,
       password: ctx.request.body?.password
@@ -155,13 +156,19 @@ userRouter.post('/upload', JWTAuth(2), async ctx => {
     // 0说明上传的文件是头像，放到 avatar 文件夹
     if (fields.get('type') === '0') {
       const filepath = path.join(nginxPath, './avatar/', fileName);
-      fs.mkdirSync(path.dirname(filepath), { recursive: true });
+      const fileDir = path.dirname(filepath);
+      fs.mkdirSync(fileDir, { recursive: true });
       fs.writeFile(filepath, Buffer.concat(fileData), () => { });
       ctx.body = { code: 201, data: `${serverUrl}/avatar/${fileName}` };
-      await inno_db.collection('users').updateOne({
+      await inno_db.collection('users').findOneAndUpdate({
         uid: ctx.custom.uid
       }, {
         $set: { avatarUrl: fileName }
+      }).then((res) => {
+        // 如果是替换头像，则删除旧的
+        if (res.value?.avatarUrl && res.value?.avatarUrl !== 'undefined.png') {
+          fs.unlink(path.join(fileDir, res.value.avatarUrl), () => { });
+        }
       });
     } else {
       ctx.body = { code: 500, data: '请指定上传类型' };
@@ -184,6 +191,7 @@ userRouter.post('/login', async ctx => {
       }, JWTSecret, { expiresIn: '7d' });
       const { password, ...data } = user;
       data.token = token;
+      data.avatarUrl = serverUrl + '/avatar/' + data.avatarUrl;
       ctx.body = { code: 200, data: data };
       return;
     }
