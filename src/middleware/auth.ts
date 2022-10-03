@@ -16,10 +16,12 @@ export function JWTAuth(level = 0) {
           uid: ctx.custom.uid
         }, {
           projection: {
-            role: 1
+            role: 1,
+            avatarUrl: 1
           }
         });
         ctx.custom.role = user?.role;
+        ctx.custom.avatarUrl = user?.avatarUrl;
         // 若用户身份符合等级限制，则进入下个中间件
         if (user?.role <= level) await next();
         else ctx.body = { code: 401, data: '权限等级不够' };

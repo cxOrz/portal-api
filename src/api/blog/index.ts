@@ -1,5 +1,6 @@
 import Router from '@koa/router';
 import { ObjectId } from 'mongodb';
+import { serverUrl } from '../../config/global.config';
 import { inno_db } from '../../database';
 import { JWTAuth } from '../../middleware/auth';
 
@@ -14,6 +15,7 @@ blogRouter.post('/create', JWTAuth(1), async ctx => {
       markdown: ctx.request.body?.markdown,
       tag: ctx.request.body?.tag,
       author: ctx.request.body?.author,
+      avatarUrl: ctx.custom.avatarUrl,
       description: ctx.request.body?.description
     });
     ctx.body = { code: 201, data: 'success' };
@@ -25,11 +27,10 @@ blogRouter.post('/create', JWTAuth(1), async ctx => {
 
 blogRouter.post('/update', JWTAuth(1), async ctx => {
   const placeHolder: any = {};
-  Object.keys(ctx.request.body).filter((val) => {
-    return val !== '_id'
-  }).forEach((v) => {
-    placeHolder[v] = ctx.request.body[v];
-  });
+  if (ctx.request.body?.title) placeHolder.title = ctx.request.body?.title;
+  if (ctx.request.body?.description) placeHolder.description = ctx.request.body?.description;
+  if (ctx.request.body?.markdown) placeHolder.markdown = ctx.request.body?.markdown;
+  if (ctx.request.body?.tag) placeHolder.tag = ctx.request.body?.tag;
   try {
     const result = await inno_db.collection('blogs').updateOne({
       _id: new ObjectId(ctx.request.body._id)
@@ -77,8 +78,8 @@ blogRouter.get('/:id', async ctx => {
     const result = await inno_db.collection('blogs').findOne({
       _id: new ObjectId(ctx.params.id)
     });
-
     if (result) {
+      result.avatarUrl = serverUrl + '/avatar/' + result.avatarUrl;
       ctx.body = { code: 200, data: result };
     }
     else ctx.body = { code: 404, data: '无数据' };
@@ -90,11 +91,23 @@ blogRouter.get('/:id', async ctx => {
 
 blogRouter.get('/', async ctx => {
   try {
+    let size = 0, skip = 0;
+    if (Number(ctx.request.query.size) > 0) {
+      size = Number(ctx.request.query.size);
+    }
+    if (Number(ctx.request.query.skip) > 0) {
+      skip = Number(ctx.request.query.skip);
+    }
     const cursor = inno_db.collection('blogs').find({}, {
-      limit: Number(ctx.request.query.size) | 0,
-      skip: Number(ctx.request.query.skip) | 0
+      limit: size,
+      skip: skip
     });
-    ctx.body = { code: 200, data: await cursor.toArray() };
+    // 生成头像url
+    const data = await cursor.map((val) => {
+      val.avatarUrl = serverUrl + '/avatar/' + val.avatarUrl;
+      return val;
+    }).toArray();
+    ctx.body = { code: 200, data: data };
   } catch (e) {
     console.error(e);
     ctx.body = { code: 500, data: '服务器内部错误' };
