@@ -19,9 +19,10 @@ userRouter.get('/', JWTAuth(2), async ctx => {
     });
     const { password, ...result } = user as any;
     result.avatarUrl = serverUrl + '/avatar/' + result.avatarUrl;
-    ctx.body = result;
+    ctx.body = { code: 200, data: result };
   } catch (e) {
     console.error(e);
+    ctx.body = { code: 500, data: '服务器内部错误' };
   }
 });
 
@@ -57,7 +58,7 @@ userRouter.get('/verification/:email', async ctx => {
     });
     ctx.body = { code: 201, data: 'success' };
   } catch (e) {
-    ctx.body = { code: 400, data: 'fail' };
+    ctx.body = { code: 500, data: '服务器内部错误' };
     console.error(e);
   }
 });
@@ -98,6 +99,7 @@ userRouter.post('/create', async ctx => {
     });
     ctx.body = { code: 201, data: 'success' };
   } catch (e) {
+    ctx.body = { code: 500, data: '服务器内部错误' };
     console.error(e);
   }
 })
@@ -124,7 +126,11 @@ userRouter.post('/update', JWTAuth(2), async ctx => {
     }, {
       $set: placeHolder
     });
-    ctx.body = { code: 201, data: 'success' };
+    if (result.matchedCount === 1) {
+      ctx.body = { code: 201, data: 'success' };
+    } else {
+      ctx.body = { code: 400, data: '无对应数据' };
+    }
   } catch (e) {
     console.error(e);
     ctx.body = { code: 500, data: '服务器内部错误' };
@@ -170,8 +176,13 @@ userRouter.post('/upload', JWTAuth(2), async ctx => {
           fs.unlink(path.join(fileDir, res.value.avatarUrl), () => { });
         }
       });
+      inno_db.collection('blogs').updateMany({ openid: ctx.custom.uid }, {
+        $set: {
+          avatarUrl: fileName
+        }
+      });
     } else {
-      ctx.body = { code: 500, data: '请指定上传类型' };
+      ctx.body = { code: 400, data: '请指定上传类型' };
     }
   } catch (e) {
     console.error(e);
@@ -198,6 +209,7 @@ userRouter.post('/login', async ctx => {
     ctx.body = { code: 400, data: '登录失败' };
   } catch (e) {
     console.error(e);
+    ctx.body = { code: 500, data: '服务器内部错误' };
   }
 });
 
