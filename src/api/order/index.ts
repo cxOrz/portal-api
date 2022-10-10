@@ -9,7 +9,11 @@ orderRouter.post('/create', JWTAuth(2), async ctx => {
   try {
     const date = new Date();
     const estimateCount = await inno_db.collection('orders').estimatedDocumentCount();
-    const admin_uids = await inno_db.collection('users').find({ role: 0 }, { projection: { uid: 1 } }).toArray();
+    const admin_uids = await inno_db.collection('users').find({
+      role: {
+        $lte: 1
+      }
+    }, { projection: { uid: 1 } }).toArray();
     const to_uid = admin_uids.length === 0 ? 0 : admin_uids[Math.floor(Math.random() * admin_uids.length)].uid;
     await inno_db.collection('orders').insertOne({
       openid: ctx.custom.uid,
