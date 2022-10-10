@@ -45,7 +45,10 @@ userRouter.get('/verification/:email', async ctx => {
     if (exists) {
       vcode = exists.data;
     } else {
-      vcode = String(Math.floor(Math.random() * 1000000));
+      vcode = '';
+      for (let i = 0; i < 6; i++) {
+        vcode += String(Math.random()).at(2);
+      }
       await inno_db.collection('verificationCode').insertOne({
         ctime: new Date(),
         data: vcode,
@@ -66,7 +69,7 @@ userRouter.get('/verification/:email', async ctx => {
 userRouter.post('/create', async ctx => {
   try {
     let uuid = '';
-    let uuid_exists: any = true
+    let uuid_exists: any = true;
     // 创建唯一UID
     while (uuid_exists !== null) {
       uuid = crypto.randomUUID();
@@ -102,7 +105,7 @@ userRouter.post('/create', async ctx => {
     ctx.body = { code: 500, data: '服务器内部错误' };
     console.error(e);
   }
-})
+});
 
 userRouter.post('/update', JWTAuth(2), async ctx => {
   const { phone, nickName, avatarUrl, password } = ctx.request.body as any;
