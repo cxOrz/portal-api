@@ -59,6 +59,7 @@ blogRouter.delete('/:id', JWTAuth(1), async ctx => {
   }
 });
 
+// 近期博客列表
 blogRouter.get('/list', async ctx => {
   try {
     const limit = ctx.request.query.limit;
@@ -89,6 +90,7 @@ blogRouter.get('/:id', async ctx => {
   }
 });
 
+// 分页、全部，获取博客
 blogRouter.get('/', async ctx => {
   try {
     let size = 0, skip = 0;
