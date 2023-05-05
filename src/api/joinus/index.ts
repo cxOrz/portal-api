@@ -37,6 +37,7 @@ joinusRouter.post('/', JWTAuth(2), async ctx => {
       exam_score: 0,
       interview_score: 0,
       note: '',
+      date: new Date(),
       status: 0
     });
     ctx.body = { code: 200, data: 'success' };
@@ -57,8 +58,7 @@ joinusRouter.get('/', JWTAuth(1), async ctx => {
     }
     const cursor = inno_db.collection('joinApplications').find({}, {
       limit: pageSize,
-      skip: page * pageSize,
-      sort: { _id: 1 }
+      skip: page * pageSize
     });
     const total = await inno_db.collection('joinApplications').countDocuments();
     const data = await cursor.toArray();

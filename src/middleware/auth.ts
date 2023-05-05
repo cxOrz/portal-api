@@ -29,7 +29,6 @@ export function JWTAuth(level = 0) {
         ctx.body = { code: 401, data: '无权操作' };
       }
     } catch (err: any) {
-      console.log(err)
       switch (err.name) {
         case 'TokenExpiredError': ctx.body = { code: 401, data: '身份过期，请重新登录' }; break;
         case 'JsonWebTokenError': ctx.body = { code: 401, data: '你的行为已被记录' };
