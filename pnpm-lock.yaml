@@ -33,6 +33,9 @@ devDependencies:
   '@types/jsonwebtoken':
     specifier: ^9.0.1
     version: 9.0.1
+  '@types/koa':
+    specifier: ^2.13.6
+    version: 2.13.6
   '@types/koa-bodyparser':
     specifier: ^4.3.10
     version: 4.3.10
