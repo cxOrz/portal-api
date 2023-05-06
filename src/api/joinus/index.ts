@@ -69,7 +69,7 @@ joinusRouter.get('/', JWTAuth(1), async ctx => {
   }
 });
 
-joinusRouter.put('/', async ctx => {
+joinusRouter.put('/', JWTAuth(1), async ctx => {
   const placeHolder: any = {};
   const body = ctx.request.body as any;
   if (body?.exam_score) placeHolder.exam_score = body?.exam_score;
