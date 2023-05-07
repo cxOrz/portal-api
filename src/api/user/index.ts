@@ -77,6 +77,7 @@ userRouter.get('/verification/:email', async ctx => {
 });
 
 userRouter.post('/create', async ctx => {
+  const body = ctx.request.body as any;
   try {
     let uuid = '';
     let uuid_exists: any = true;
@@ -89,9 +90,9 @@ userRouter.post('/create', async ctx => {
     }
     // 验证邮箱
     const vcode_exists = await inno_db.collection('verificationCode').findOne({
-      data: ctx.request.body?.code
+      data: body.code
     });
-    if (vcode_exists?.email !== ctx.request.body?.email) {
+    if (vcode_exists?.email !== body.email) {
       ctx.body = { code: 400, data: '邮箱验证失败' };
       return;
     }
@@ -100,11 +101,15 @@ userRouter.post('/create', async ctx => {
       uid: uuid,
       openid: '0',
       phone: '',
+      password: body.password,
       nickName: '萌新',
       avatarUrl: 'undefined.png',
-      email: ctx.request.body?.email,
+      email: body.email,
+      realname: '',
+      idNo: '',
+      field: '',
       role: 3,
-      password: ctx.request.body?.password
+      date: new Date()
     });
     // 异步删除验证码
     inno_db.collection('verificationCode').deleteOne({
@@ -205,9 +210,10 @@ userRouter.post('/upload', JWTAuth(3), async ctx => {
 
 // 登录并返回基本信息
 userRouter.post('/login', async ctx => {
+  const body = ctx.request.body as any;
   try {
     const user = await inno_db.collection('users').findOne({
-      email: ctx.request.body?.email
+      email: body.email
     }, {
       projection: {
         _id: 0,
@@ -219,7 +225,7 @@ userRouter.post('/login', async ctx => {
         password: 1
       }
     });
-    if (user?.password !== undefined && (user.password === ctx.request.body?.password)) {
+    if (user?.password !== undefined && (user.password === body.password)) {
       // token 有效期7天
       const token = jwt.sign({
         uid: user.uid

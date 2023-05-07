@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { JWTSecret } from "../config/global.config";
 import { inno_db } from "../database";
 
-// 身份认证中间件, 要求身份等级为level级，lv0>lv1>lv2
+// 身份认证中间件, 要求身份等级为level级，lv0>lv1>lv2>lv3
 export function JWTAuth(level = 0) {
   return async function (ctx: any, next: any) {
     try {
