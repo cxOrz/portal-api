@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 
 const joinusRouter = new Router({ prefix: '/joinus' });
 
-joinusRouter.get('/status', JWTAuth(2), async ctx => {
+joinusRouter.get('/status', JWTAuth(3), async ctx => {
   try {
     const result = await inno_db.collection('joinApplications').findOne({
       openid: ctx.custom.uid
@@ -20,7 +20,7 @@ joinusRouter.get('/status', JWTAuth(2), async ctx => {
   }
 });
 
-joinusRouter.post('/', JWTAuth(2), async ctx => {
+joinusRouter.post('/', JWTAuth(3), async ctx => {
   const body = ctx.request.body as any;
   try {
     await inno_db.collection('joinApplications').insertOne({

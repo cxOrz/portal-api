@@ -5,7 +5,7 @@ import { JWTAuth } from '../../middleware/auth';
 
 const orderRouter = new Router({ prefix: '/order' });
 
-orderRouter.post('/create', JWTAuth(2), async ctx => {
+orderRouter.post('/create', JWTAuth(3), async ctx => {
   try {
     const date = new Date();
     const estimateCount = await inno_db.collection('orders').estimatedDocumentCount();
@@ -38,7 +38,7 @@ orderRouter.post('/create', JWTAuth(2), async ctx => {
 });
 
 
-orderRouter.get('/', JWTAuth(2), async ctx => {
+orderRouter.get('/', JWTAuth(3), async ctx => {
   try {
     if (ctx.query.id) {
       const result = await inno_db.collection('orders').findOne({ _id: new ObjectId(ctx.query.id as string) });
@@ -64,7 +64,7 @@ orderRouter.get('/', JWTAuth(2), async ctx => {
   }
 });
 
-orderRouter.post('/sendmsg', JWTAuth(2), async ctx => {
+orderRouter.post('/sendmsg', JWTAuth(3), async ctx => {
   try {
     const result = await inno_db.collection('orders').updateOne({
       _id: new ObjectId(ctx.request.body?.id)

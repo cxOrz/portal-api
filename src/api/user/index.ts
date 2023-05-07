@@ -11,13 +11,23 @@ import { sendEmail } from '../../utils/mail';
 
 const userRouter = new Router({ prefix: '/user' });
 
-// 需要权限认证，才可调用
-userRouter.get('/', JWTAuth(2), async ctx => {
+// 获取用户本人信息
+userRouter.get('/', JWTAuth(3), async ctx => {
   try {
     const user = await inno_db.collection('users').findOne({
       uid: ctx.custom.uid
+    }, {
+      projection: {
+        _id: 1,
+        uid: 1,
+        nickName: 1,
+        phone: 1,
+        email: 1,
+        avatarUrl: 1,
+        role: 1
+      }
     });
-    const { password, ...result } = user as any;
+    const { ...result } = user as any;
     result.avatarUrl = serverUrl + '/avatar/' + result.avatarUrl;
     ctx.body = { code: 200, data: result };
   } catch (e) {
@@ -93,7 +103,7 @@ userRouter.post('/create', async ctx => {
       nickName: '萌新',
       avatarUrl: 'undefined.png',
       email: ctx.request.body?.email,
-      role: 2,
+      role: 3,
       password: ctx.request.body?.password
     });
     // 异步删除验证码
@@ -107,7 +117,7 @@ userRouter.post('/create', async ctx => {
   }
 });
 
-userRouter.post('/update', JWTAuth(2), async ctx => {
+userRouter.post('/update', JWTAuth(3), async ctx => {
   const { phone, nickName, avatarUrl, password } = ctx.request.body as any;
   const placeHolder: any = {};
   if (phone) {
@@ -140,7 +150,7 @@ userRouter.post('/update', JWTAuth(2), async ctx => {
   }
 });
 
-userRouter.post('/upload', JWTAuth(2), async ctx => {
+userRouter.post('/upload', JWTAuth(3), async ctx => {
   const bb = busboy({ headers: ctx.req.headers });
   const fields = new Map<string, string>();
   const fileData: any[] = [];
@@ -193,17 +203,29 @@ userRouter.post('/upload', JWTAuth(2), async ctx => {
   }
 });
 
+// 登录并返回基本信息
 userRouter.post('/login', async ctx => {
   try {
     const user = await inno_db.collection('users').findOne({
       email: ctx.request.body?.email
-    }, { projection: { _id: 0 } });
+    }, {
+      projection: {
+        _id: 0,
+        uid: 1,
+        phone: 1,
+        nickName: 1,
+        avatarUrl: 1,
+        role: 1,
+        password: 1
+      }
+    });
     if (user?.password !== undefined && (user.password === ctx.request.body?.password)) {
-      // token 有效期7天=604800秒
+      // token 有效期7天
       const token = jwt.sign({
         uid: user.uid
       }, JWTSecret, { expiresIn: '7d' });
-      const { password, ...data } = user;
+      const { ...data } = user;
+      delete data.password;
       data.token = token;
       data.avatarUrl = serverUrl + '/avatar/' + data.avatarUrl;
       ctx.body = { code: 200, data: data };
