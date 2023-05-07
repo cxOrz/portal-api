@@ -1,5 +1,4 @@
 import Router from '@koa/router';
-import { ObjectId } from 'mongodb';
 import { inno_db } from '../../database';
 import { JWTAuth } from '../../middleware/auth';
 
@@ -56,7 +55,7 @@ personnelRouter.get('/', JWTAuth(0), async ctx => {
   }
 });
 
-personnelRouter.put('/', JWTAuth(1), async ctx => {
+personnelRouter.put('/', JWTAuth(0), async ctx => {
   const placeHolder: any = {};
   const body = ctx.request.body as any;
   if (body.idNo) placeHolder.idNo = body.idNo;
@@ -82,10 +81,10 @@ personnelRouter.put('/', JWTAuth(1), async ctx => {
   }
 });
 
-personnelRouter.delete('/:id', JWTAuth(1), async ctx => {
+personnelRouter.delete('/:uid', JWTAuth(0), async ctx => {
   try {
-    const result = await inno_db.collection('devices').deleteOne({
-      _id: new ObjectId(ctx.params.id)
+    const result = await inno_db.collection('users').deleteOne({
+      uid: ctx.params.uid
     });
     if (result.deletedCount === 1) ctx.body = { code: 204, data: 'success' };
     else ctx.body = { code: 400, data: '未找到该条数据' };

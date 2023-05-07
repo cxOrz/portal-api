@@ -25,20 +25,32 @@ joinusRouter.post('/', JWTAuth(3), async ctx => {
   try {
     await inno_db.collection('joinApplications').insertOne({
       openid: ctx.custom.uid,
-      name: body?.name,
-      gendor: body?.gendor,
-      phone: body?.phone,
-      academy: body?.academy,
-      major: body?.major,
-      idNo: body?.idNo,
-      honors: body?.honors,
-      self_eval: body?.self_eval,
-      comments: body?.comments,
+      name: body.name,
+      gendor: body.gendor,
+      phone: body.phone,
+      academy: body.academy,
+      major: body.major,
+      idNo: body.idNo,
+      honors: body.honors,
+      self_eval: body.self_eval,
+      comments: body.comments,
       exam_score: 0,
       interview_score: 0,
       note: '',
       date: new Date(),
       status: 0
+    });
+    await inno_db.collection('users').updateOne({
+      uid: ctx.custom.uid
+    }, {
+      $set: {
+        realname: body.name,
+        gendor: body.gendor,
+        phone: body.phone,
+        academy: body.academy,
+        major: body.major,
+        idNo: body.idNo
+      }
     });
     ctx.body = { code: 200, data: 'success' };
   } catch (e) {
