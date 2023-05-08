@@ -81,7 +81,6 @@ personnelRouter.put('/', JWTAuth(0), async ctx => {
           await inno_db.collection('attendance').insertOne({
             uid: body.uid,
             realname: body.realname,
-            pin: '0000',
             total: 0,
             today: 0,
             leave: []
