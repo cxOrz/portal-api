@@ -65,8 +65,31 @@ personnelRouter.put('/', JWTAuth(0), async ctx => {
   if (body.major) placeHolder.major = body.major;
   if (body.academy) placeHolder.academy = body.academy;
   if (body.field) placeHolder.field = body.field;
-  if (body.role) placeHolder.role = body.role;
   try {
+    // 操作考勤集合
+    if (body.role) {
+      placeHolder.role = body.role;
+      const attendance = await inno_db.collection('attendance').findOne({ uid: body.uid });
+      if (attendance) {
+        if (body.role > 2) {
+          // 清除考勤
+          await inno_db.collection('attendance').deleteOne({ uid: body.uid });
+        }
+      } else {
+        if (body.role <= 2) {
+          // 添加考勤
+          await inno_db.collection('attendance').insertOne({
+            uid: body.uid,
+            realname: body.realname,
+            pin: '0000',
+            total: 0,
+            today: 0,
+            leave: []
+          });
+        }
+      }
+    }
+    // 操作用户集合
     const result = await inno_db.collection('users').updateOne({
       uid: body.uid
     }, {

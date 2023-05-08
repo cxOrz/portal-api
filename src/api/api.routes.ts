@@ -5,6 +5,7 @@ import userRouter from './user';
 import joinusRouter from './joinus';
 import deviceRouter from './device';
 import personnelRouter from './personnel';
+import attendanceRouter from './attendance';
 
 const apiRouter = new Router({ prefix: '/api' });
 
@@ -14,5 +15,6 @@ export default apiRouter.use(
   orderRouter.routes(),
   joinusRouter.routes(),
   deviceRouter.routes(),
-  personnelRouter.routes()
+  personnelRouter.routes(),
+  attendanceRouter.routes()
 );
