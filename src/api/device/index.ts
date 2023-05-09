@@ -54,7 +54,7 @@ deviceRouter.put('/', JWTAuth(1), async ctx => {
   const body = ctx.request.body as any;
   if (body.name) placeHolder.name = body.name;
   if (body.type) placeHolder.type = body.type;
-  if (body.price) placeHolder.price = body.price;
+  if (Number.isInteger(body.price)) placeHolder.price = body.price;
   if (body.note) placeHolder.note = body.note;
   try {
     const result = await inno_db.collection('devices').updateOne({

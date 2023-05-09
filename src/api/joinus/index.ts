@@ -84,13 +84,13 @@ joinusRouter.get('/', JWTAuth(1), async ctx => {
 joinusRouter.put('/', JWTAuth(1), async ctx => {
   const placeHolder: any = {};
   const body = ctx.request.body as any;
-  if (body?.exam_score) placeHolder.exam_score = body?.exam_score;
-  if (body?.interview_score) placeHolder.interview_score = body?.interview_score;
-  if (body?.status) placeHolder.status = body?.status;
-  if (body?.note) placeHolder.note = body?.note;
+  if (Number.isInteger(body.exam_score)) placeHolder.exam_score = body.exam_score;
+  if (Number.isInteger(body.interview_score)) placeHolder.interview_score = body.interview_score;
+  if (Number.isInteger(body.status)) placeHolder.status = body.status;
+  if (body.note) placeHolder.note = body.note;
   try {
     const result = await inno_db.collection('joinApplications').updateOne({
-      _id: new ObjectId(body?._id)
+      _id: new ObjectId(body._id)
     }, {
       $set: placeHolder
     });
