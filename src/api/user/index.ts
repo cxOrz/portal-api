@@ -109,6 +109,7 @@ userRouter.post('/create', async ctx => {
       idNo: '',
       field: '',
       role: 3,
+      modify_attendance: false,
       date: new Date()
     });
     // 异步删除验证码
