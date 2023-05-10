@@ -29,6 +29,7 @@ blogRouter.post('/update', JWTAuth(1), async ctx => {
   const placeHolder: any = {};
   if (ctx.request.body?.title) placeHolder.title = ctx.request.body?.title;
   if (ctx.request.body?.description) placeHolder.description = ctx.request.body?.description;
+  if (ctx.request.body?.author) placeHolder.author = ctx.request.body?.author;
   if (ctx.request.body?.markdown) placeHolder.markdown = ctx.request.body?.markdown;
   if (ctx.request.body?.tag) placeHolder.tag = ctx.request.body?.tag;
   try {

@@ -18,7 +18,7 @@ userRouter.get('/', JWTAuth(3), async ctx => {
       uid: ctx.custom.uid
     }, {
       projection: {
-        _id: 1,
+        _id: 0,
         uid: 1,
         nickName: 1,
         phone: 1,

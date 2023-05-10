@@ -22,7 +22,7 @@ orderRouter.post('/create', JWTAuth(3), async ctx => {
       message: [
         {
           data: ctx.request.body?.message,
-          direction: 0
+          direction: 0 // 0 是openid发的消息，1 是to_uid发的消息
         }
       ],
       open_date: date,
@@ -68,21 +68,28 @@ orderRouter.post('/sendmsg', JWTAuth(3), async ctx => {
   try {
     const result = await inno_db.collection('orders').updateOne({
       _id: new ObjectId(ctx.request.body?.id)
-    }, {
-      $push: {
-        message: {
-          data: ctx.request.body?.message,
-          direction: ctx.custom.role < 2 ? 1 : 0
+    }, [
+      {
+        $set: {
+          message: {
+            $concatArrays: [
+              '$message',
+              [{
+                $cond: {
+                  if: { $eq: ['$openid', ctx.custom.uid] },
+                  then: { data: ctx.request.body?.message, direction: 0 },
+                  else: { data: ctx.request.body?.message, direction: 1 }
+                }
+              }]
+            ]
+          },
+          status: '受理中',
+          last_time: new Date()
         }
-      },
-      $set: {
-        status: '受理中',
-        last_time: new Date()
       }
-    });
-    if (result.matchedCount === 1) {
-      ctx.body = { code: 201, data: 'success' };
-    } else ctx.body = { code: 404, data: '未找到该条数据' };
+    ]);
+    if (result.matchedCount === 1) ctx.body = { code: 201, data: 'success' };
+    else ctx.body = { code: 404, data: '未找到该条数据' };
   } catch (e) {
     console.error(e);
     ctx.body = { code: 500, data: '服务器内部错误' };

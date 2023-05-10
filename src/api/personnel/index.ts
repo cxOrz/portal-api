@@ -108,7 +108,15 @@ personnelRouter.delete('/:uid', JWTAuth(0), async ctx => {
     const result = await inno_db.collection('users').deleteOne({
       uid: ctx.params.uid
     });
-    if (result.deletedCount === 1) ctx.body = { code: 204, data: 'success' };
+    if (result.deletedCount === 1) {
+      inno_db.collection('joinApplications').deleteOne({
+        openid: ctx.params.uid
+      });
+      inno_db.collection('attendance').deleteOne({
+        uid: ctx.params.uid
+      });
+      ctx.body = { code: 204, data: 'success' };
+    }
     else ctx.body = { code: 400, data: '未找到该条数据' };
   } catch (e) {
     console.error(e);

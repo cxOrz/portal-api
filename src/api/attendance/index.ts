@@ -110,7 +110,7 @@ attendanceRouter.put('/mode/:mode', JWTAuth(2), async ctx => {
         }
       }
     }
-    ctx.body = { code: 403, data: '验证失败' };
+    ctx.body = { code: 403, data: '未授权的操作' };
   } catch (e) {
     console.error(e);
     ctx.body = { code: 500, data: '服务器内部错误' };
