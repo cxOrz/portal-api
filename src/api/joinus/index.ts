@@ -27,6 +27,7 @@ joinusRouter.post('/', JWTAuth(3), async ctx => {
       openid: ctx.custom.uid,
       name: body.name,
       gendor: body.gendor,
+      email: ctx.custom.email,
       phone: body.phone,
       academy: body.academy,
       major: body.major,
@@ -62,13 +63,26 @@ joinusRouter.post('/', JWTAuth(3), async ctx => {
 joinusRouter.get('/', JWTAuth(1), async ctx => {
   try {
     let pageSize = 0, page = 0;
+    let payload: any = {};
     if (Number(ctx.request.query.pageSize) > 0) {
       pageSize = Number(ctx.request.query.pageSize);
     }
     if (Number(ctx.request.query.page) > 0) {
       page = Number(ctx.request.query.page);
     }
-    const cursor = inno_db.collection('joinApplications').find({}, {
+    if (ctx.request.query.search) {
+      payload = {
+        $or: [
+          { email: { $regex: ctx.request.query.search } },
+          { idNo: { $regex: ctx.request.query.search } },
+          { name: { $regex: ctx.request.query.search } },
+          { phone: { $regex: ctx.request.query.search } },
+          { major: { $regex: ctx.request.query.search } },
+          { academy: { $regex: ctx.request.query.search } }
+        ]
+      };
+    }
+    const cursor = inno_db.collection('joinApplications').find(payload, {
       limit: pageSize,
       skip: page * pageSize
     });
