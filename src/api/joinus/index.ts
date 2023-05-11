@@ -84,7 +84,10 @@ joinusRouter.get('/', JWTAuth(1), async ctx => {
     }
     const cursor = inno_db.collection('joinApplications').find(payload, {
       limit: pageSize,
-      skip: page * pageSize
+      skip: page * pageSize,
+      projection: {
+        openid: 0
+      }
     });
     const total = await inno_db.collection('joinApplications').countDocuments();
     const data = await cursor.toArray();
