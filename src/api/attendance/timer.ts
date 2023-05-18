@@ -9,6 +9,15 @@ const timer = setInterval(async () => {
       total: 0.1
     }
   });
+  // 每天24点，重置所有人today时长，结束所有人考勤
+  if (new Date().getHours() === 0) {
+    await inno_db.collection('attendance').updateMany({}, {
+      $set: {
+        on: false,
+        today: 0
+      }
+    });
+  }
 }, TIMEOUT);
 
 process.addListener('SIGINT', () => {
