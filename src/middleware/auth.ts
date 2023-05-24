@@ -28,13 +28,13 @@ export function JWTAuth(level = 0) {
         ctx.custom.email = user?.email;
         // 若用户身份符合等级限制，则进入下个中间件
         if (user?.role <= level) await next();
-        else ctx.body = { code: 401, data: '权限等级不够' };
+        else ctx.body = { code: 403, data: '权限等级不够' };
       } else {
-        ctx.body = { code: 401, data: '无权操作' };
+        ctx.body = { code: 401, data: '未提供身份凭证' };
       }
     } catch (err: any) {
       switch (err.name) {
-        case 'TokenExpiredError': ctx.body = { code: 401, data: '身份过期，请重新登录' }; break;
+        case 'TokenExpiredError': ctx.body = { code: 403, data: '身份过期，请重新登录' }; break;
         case 'JsonWebTokenError': ctx.body = { code: 401, data: '你的行为已被记录' };
       }
     }
